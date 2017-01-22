@@ -9,6 +9,8 @@ DBExist = os.path.isfile('cronhoteldb.db')
 dbCon = sqlite3.connect('cronhoteldb.db')
 cursor = dbCon.cursor()
 
+configFile = sys.argv[1]
+
 
 # create the tables as assignment
 # fill the tables with the info from config as an argument parameter
@@ -30,10 +32,66 @@ def create_tables():
                                                     LastName TEXT NOT NULL)""")
 
 
+def insert_data():
+    content = []
+    taskId = 0
+    with open(configFile) as inputFile:
+        content = inputFile.readlines()
+    # you may also want to remove whitespace characters like `\n` at the end of each line
+    content = [x.strip() for x in content]
+    for line in content:
+        decode_config_file_line(line, taskId)
+        taskId += 1
+
+
+def decode_config_file_line(line, taskId):
+    line_fields = line.split(",")
+    options[line_fields[0]](line_fields, taskId)
+
+
+# define the function blocks
+def room(lineFields, taskId):
+    cursor.execute("INSERT INTO Rooms VALUES (?)", [lineFields[1]])
+    if len(lineFields) == 4:
+        cursor.execute("INSERT INTO Residents VALUES (?, ?, ?)", [lineFields[1], lineFields[2], lineFields[3]])
+
+
+def clean(lineFields, taskId):
+    cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[2]])
+    cursor.execute("INSERT INTO Tasks VALUES (?, ?, ?)", [taskId, lineFields[0], 0])
+
+
+def breakfast(lineFields, taskId):
+    cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[2]])
+    cursor.execute("INSERT INTO Tasks VALUES (?, ?,?)", [taskId, lineFields[0], lineFields[3]])
+
+
+def wakeup(lineFields, taskId):
+    cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[2]])
+    cursor.execute("INSERT INTO Tasks VALUES (?, ?, ?)", [taskId, lineFields[0], lineFields[3]])
+
+# map the inputs to the function blocks
+options = {"room": room,
+           "clean": clean,
+           "breakfast": breakfast,
+           "wakeup": wakeup,
+}
+
+
 # Define a function to be called when the interpreter terminates
 def close_db():
     dbCon.commit()
     dbCon.close()
+
+
+def main():
+    if not DBExist:
+        create_tables()
+        insert_data()
+
+
+if __name__ == '__main__':
+    main()
 
 # register close_db to be called when the interpreter terminates
 atexit.register(close_db)
