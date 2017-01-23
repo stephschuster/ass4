@@ -18,22 +18,47 @@ cursor = dbCon.cursor()
 # out of while - close the db
 
 
-def read_task_times():
-    return ""
+def get_all_active_task_times():
+    cursor.execute("SELECT * FROM TaskTimes WHERE NumTimes > 0")
+    return cursor.fetchall()
 
 
-def read_tasks():
-    return ""
+def get_task_time_by_id(taskId):
+    cursor.execute("SELECT * FROM TaskTimes WHERE TaskId=({})".format(taskId))
+    return cursor.fetchone()
 
 
-def update_task_times():
-    return ""
+def get_all_tasks():
+    cursor.execute("SELECT * FROM Tasks")
+    return cursor.fetchall()
+
+
+def get_task_by_id(taskId):
+    cursor.execute("SELECT * FROM Tasks WHERE TaskId=({})".format(taskId))
+    return cursor.fetchone()
+
+
+# UPDATE table_name SET column_name1=expression1 [, … ] WHERE column_name2=expression2
+def update_task_times(updatedTaskTime):
+    cursor.execute("UPDATE TaskTimes SET NumTimes={} WHERE TaskId={}"
+                   .format(updatedTaskTime.NumTimes, updatedTaskTime.TaskId))
 
 
 # Define a function to be called when the interpreter terminates
 def close_db():
     dbCon.commit()
     dbCon.close()
+
+
+def main():
+    active_task = get_all_active_task_times()
+    while DBExist and len(active_task) > 0:
+        active_task = get_all_active_task_times()
+
+
+if __name__ == '__main__':
+    main()
+
 
 # register close_db to be called when the interpreter terminates
 atexit.register(close_db)

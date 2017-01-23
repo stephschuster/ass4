@@ -40,34 +40,37 @@ def insert_data():
     # you may also want to remove whitespace characters like `\n` at the end of each line
     content = [x.strip() for x in content]
     for line in content:
-        decode_config_file_line(line, taskId)
-        taskId += 1
+        taskId = decode_config_file_line(line, taskId)
 
 
 def decode_config_file_line(line, taskId):
     line_fields = line.split(",")
-    options[line_fields[0]](line_fields, taskId)
+    return options[line_fields[0]](line_fields, taskId)
 
 
 def room(lineFields, taskId):
     cursor.execute("INSERT INTO Rooms VALUES (?)", [lineFields[1]])
     if len(lineFields) == 4:
         cursor.execute("INSERT INTO Residents VALUES (?, ?, ?)", [lineFields[1], lineFields[2], lineFields[3]])
+    return taskId
 
 
 def clean(lineFields, taskId):
     cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[2]])
     cursor.execute("INSERT INTO Tasks VALUES (?, ?, ?)", [taskId, lineFields[0], 0])
+    return taskId+1
 
 
 def breakfast(lineFields, taskId):
     cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[2]])
     cursor.execute("INSERT INTO Tasks VALUES (?, ?,?)", [taskId, lineFields[0], lineFields[3]])
+    return taskId+1
 
 
 def wakeup(lineFields, taskId):
     cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[2]])
     cursor.execute("INSERT INTO Tasks VALUES (?, ?, ?)", [taskId, lineFields[0], lineFields[3]])
+    return taskId + 1
 
 # map the inputs to the function blocks
 options = {"room": room,
