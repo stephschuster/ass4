@@ -49,7 +49,6 @@ def decode_config_file_line(line, taskId):
     options[line_fields[0]](line_fields, taskId)
 
 
-# define the function blocks
 def room(lineFields, taskId):
     cursor.execute("INSERT INTO Rooms VALUES (?)", [lineFields[1]])
     if len(lineFields) == 4:
