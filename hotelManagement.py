@@ -62,14 +62,14 @@ def clean(lineFields, taskId):
 
 
 def breakfast(lineFields, taskId):
-    cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[2]])
-    cursor.execute("INSERT INTO Tasks VALUES (?, ?,?)", [taskId, lineFields[0], lineFields[3]])
+    cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[3]])
+    cursor.execute("INSERT INTO Tasks VALUES (?, ?,?)", [taskId, lineFields[0], lineFields[2]])
     return taskId+1
 
 
 def wakeup(lineFields, taskId):
-    cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[2]])
-    cursor.execute("INSERT INTO Tasks VALUES (?, ?, ?)", [taskId, lineFields[0], lineFields[3]])
+    cursor.execute("INSERT INTO TaskTimes VALUES (?, ?, ?)", [taskId, lineFields[1], lineFields[3]])
+    cursor.execute("INSERT INTO Tasks VALUES (?, ?, ?)", [taskId, lineFields[0], lineFields[2]])
     return taskId + 1
 
 # map the inputs to the function blocks

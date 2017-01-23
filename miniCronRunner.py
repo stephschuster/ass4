@@ -2,6 +2,8 @@
 import sqlite3
 import os
 import atexit
+import hotelWorker
+import time
 
 # Check if DB already exists BEFORE calling the connect, since connect will create it
 DBExist = os.path.isfile('cronhoteldb.db')
@@ -34,14 +36,13 @@ def get_all_tasks():
 
 
 def get_task_by_id(taskId):
-    cursor.execute("SELECT * FROM Tasks WHERE TaskId=({})".format(taskId))
+    cursor.execute("SELECT * FROM Tasks WHERE TaskId="+str(taskId))
     return cursor.fetchone()
 
 
 # UPDATE table_name SET column_name1=expression1 [, … ] WHERE column_name2=expression2
 def update_task_times(updatedTaskTime):
-    cursor.execute("UPDATE TaskTimes SET NumTimes={} WHERE TaskId={}"
-                   .format(updatedTaskTime.NumTimes, updatedTaskTime.TaskId))
+    cursor.execute("UPDATE TaskTimes SET NumTimes="+str(updatedTaskTime[2])+" WHERE TaskId="+str(updatedTaskTime[0]))
 
 
 # Define a function to be called when the interpreter terminates
@@ -51,9 +52,18 @@ def close_db():
 
 
 def main():
-    active_task = get_all_active_task_times()
-    while DBExist and len(active_task) > 0:
-        active_task = get_all_active_task_times()
+    active_tasks = get_all_active_task_times()
+    lastRunTimeTaskDic = {}
+    while DBExist and len(active_tasks) > 0:
+        for active_task in active_tasks:
+            taskDetails = get_task_by_id(active_task[0])
+            if active_task[0] not in lastRunTimeTaskDic or lastRunTimeTaskDic[active_task[0]]+active_task[1] <= time.time():
+                lastRunTimeTaskDic[active_task[0]] = \
+                    hotelWorker.dohoteltask(taskDetails[1], taskDetails[2])
+                editableTask = list(active_task)
+                editableTask[2] -= 1
+                update_task_times(editableTask)
+        active_tasks = get_all_active_task_times()
 
 
 if __name__ == '__main__':

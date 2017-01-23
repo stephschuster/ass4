@@ -12,18 +12,21 @@ cursor = dbCon.cursor()
 
 
 def clean(parameter):
-    print "clean task"
-    return time.time()
+    res = time.time()
+    print "clean task " + str(res)
+    return res
 
 
 def breakfast(parameter):
-    print "breakfast task"
-    return time.time()
+    res = time.time()
+    print "breakfast task" + str(res)
+    return res
 
 
 def wakeup(parameter):
-    print "wakeup task"
-    return time.time()
+    res = time.time()
+    print "wakeup task" + str(res)
+    return res
 
 
 # map the inputs to the function blocks
