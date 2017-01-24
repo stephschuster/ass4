@@ -25,16 +25,6 @@ def get_all_active_task_times():
     return cursor.fetchall()
 
 
-def get_task_time_by_id(taskId):
-    cursor.execute("SELECT * FROM TaskTimes WHERE TaskId=({})".format(taskId))
-    return cursor.fetchone()
-
-
-def get_all_tasks():
-    cursor.execute("SELECT * FROM Tasks")
-    return cursor.fetchall()
-
-
 def get_task_by_id(taskId):
     cursor.execute("SELECT * FROM Tasks WHERE TaskId="+str(taskId))
     return cursor.fetchone()
@@ -47,13 +37,16 @@ def update_task_times(updatedTaskTime):
 
 # Define a function to be called when the interpreter terminates
 def close_db():
-    dbCon.commit()
-    dbCon.close()
+    if DBExist:
+        dbCon.commit()
+        dbCon.close()
 
 
 def main():
-    active_tasks = get_all_active_task_times()
     lastRunTimeTaskDic = {}
+    active_tasks = []
+    if DBExist:
+        active_tasks = get_all_active_task_times()
     while DBExist and len(active_tasks) > 0:
         for active_task in active_tasks:
             taskDetails = get_task_by_id(active_task[0])

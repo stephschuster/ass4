@@ -7,8 +7,12 @@ import time
 # Check if DB already exists BEFORE calling the connect, since connect will create it
 DBExist = os.path.isfile('cronhoteldb.db')
 # Will create a connection to 'cow.db' file. If the file does not exist, it will create it
-dbCon = sqlite3.connect('cronhoteldb.db')
-cursor = dbCon.cursor()
+dbCon = {}
+cursor = {}
+
+if DBExist:
+    dbCon = sqlite3.connect('cronhoteldb.db')
+    cursor = dbCon.cursor()
 
 
 def clean(parameter):
@@ -46,8 +50,9 @@ def dohoteltask(taskname, parameter):
 
 # Define a function to be called when the interpreter terminates
 def close_db():
-    dbCon.commit()
-    dbCon.close()
+    if DBExist:
+        dbCon.commit()
+        dbCon.close()
 
 # register close_db to be called when the interpreter terminates
 atexit.register(close_db)
